@@ -3,7 +3,7 @@
 ==================== READ THIS BEFORE CONTINUING ====================
 =====================================================================
 
-  Kickstart.nvim is *not* a distribution.
+Kickstart.nvim is *not* a distribution.
 
 Kickstart.nvim is a template for your own configuration.
   The goal is that you can read every line of code, top-to-bottom, understand
@@ -79,6 +79,9 @@ require('lazy').setup({
   -- Detect tabstop and shiftwidth automatically
   'tpope/vim-sleuth',
 
+  -- GLSL syntax highlighting
+  'tikhomirov/vim-glsl',
+
   -- NOTE: This is where your plugins related to LSP can be installed.
   --  The configuration is done below. Search for lspconfig to find it below.
   {
@@ -96,6 +99,11 @@ require('lazy').setup({
       -- Additional lua configuration, makes nvim stuff amazing!
       'folke/neodev.nvim',
     },
+  },
+  {
+    -- Central layout
+    'shortcuts/no-neck-pain.nvim',
+    version = "*"
   },
 
   {
@@ -194,10 +202,11 @@ require('lazy').setup({
 
   {
     -- Theme inspired by Atom
-    'navarasu/onedark.nvim',
+    -- previous: 'navarasu/onedark.nvim',
+    'savq/melange-nvim',
     priority = 1000,
     config = function()
-      vim.cmd.colorscheme 'onedark'
+      vim.cmd.colorscheme 'melange'
     end,
   },
 
@@ -260,8 +269,8 @@ require('lazy').setup({
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
   --       These are some example plugins that I've included in the kickstart repository.
   --       Uncomment any of the lines below to enable them.
-  require 'kickstart.plugins.autoformat',
-  require 'kickstart.plugins.debug',
+  -- require 'kickstart.plugins.autoformat',
+  -- require 'kickstart.plugins.debug',
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    You can use this folder to prevent any conflicts with this init.lua if you're interested in keeping
@@ -293,9 +302,6 @@ vim.o.hlsearch = false
 -- Make line numbers default
 vim.wo.relativenumber = true
 vim.o.number = true
-
--- Cursor line
-vim.o.cursorline = true
 
 
 -- Enable mouse mode
@@ -368,6 +374,7 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   pattern = '*',
 })
 
+
 -- [[ Configure Telescope ]]
 -- See `:help telescope` and `:help telescope.setup()`
 local telescope_actions = require('telescope.actions')
@@ -381,6 +388,15 @@ require('telescope').setup {
     },
   },
 }
+
+-- Setup central layout plugin (NoNeckPain) to only pad the left side
+require('no-neck-pain').setup({
+  buffers = {
+    right = {
+      enabled = false,
+    },
+  },
+})
 
 
 -- nvim-tree setup using default options
@@ -582,7 +598,14 @@ local on_attach = function(_, bufnr)
   end, { desc = 'Format current buffer with LSP' })
 end
 
--- document existing key chains
+-- [[Run :Format on save]]
+vim.api.nvim_create_autocmd('BufWritePre',
+  {
+    callback = function()
+      vim.lsp.buf.format()
+    end
+  })
+-- document existing key chain_status
 require('which-key').register {
   ['<leader>c'] = { name = '[C]ode', _ = 'which_key_ignore' },
   ['<leader>d'] = { name = '[D]ocument', _ = 'which_key_ignore' },
@@ -616,8 +639,8 @@ require('mason-lspconfig').setup()
 local servers = {
   clangd = {},
   gopls = {},
-  pyright = {},
   rust_analyzer = {},
+  pyright = {},
   tsserver = {},
   html = { filetypes = { 'html', 'twig', 'hbs' } },
   lua_ls = {
