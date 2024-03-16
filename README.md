@@ -1,3 +1,6 @@
+### Disclaimer
+This is my personal nvim setup. From the starting point of Kickstart.nvim, I have added other plugins such as autopairs, format on save, and LSPs that suit my needs.
+
 # kickstart.nvim
 
 https://github.com/kdheepak/kickstart.nvim/assets/1813121/f3ff9a2b-c31f-44df-a4fa-8a0d7b17cf7b
