@@ -104,6 +104,16 @@ require('lazy').setup({
     },
   },
   {
+
+    -- Null-ls to set up interaction with foramtter and LSP
+    'jay-babu/mason-null-ls.nvim',
+    event = { "BufReadPre", "BufNewFile" },
+    dependencies = {
+      "williamboman/mason.nvim",
+      "nvimtools/none-ls.nvim",
+    },
+  },
+  {
     -- Central layout
     'shortcuts/no-neck-pain.nvim',
     version = "*"
@@ -631,6 +641,9 @@ require('which-key').register({
 require('mason').setup()
 require('mason-lspconfig').setup()
 
+
+
+
 -- Enable the following language servers
 --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
 --
@@ -681,6 +694,20 @@ mason_lspconfig.setup_handlers {
     }
   end,
 }
+
+
+-- Setup null ls to use black for python
+require("mason-null-ls").setup({
+  ensure_installed = { "black" }
+})
+
+local null_ls = require("null-ls")
+
+null_ls.setup({
+  sources = {
+    null_ls.builtins.formatting.black,
+  },
+})
 
 -- [[ Configure nvim-cmp ]]
 -- See `:help cmp`
