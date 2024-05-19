@@ -46,6 +46,7 @@ vim.g.maplocalleader = ' '
 -- disable netrw at the very start of your init.lua
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
+vim.cmd.set("cursorline")
 
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    https://github.com/folke/lazy.nvim
@@ -118,7 +119,6 @@ require('lazy').setup({
     'shortcuts/no-neck-pain.nvim',
     version = "*"
   },
-
   {
     -- Autocompletion
     'hrsh7th/nvim-cmp',
@@ -589,8 +589,62 @@ local on_attach = function(_, bufnr)
   nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
   nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
 
+  vim.api.nvim_set_keymap('n', '<leader>gr', '<cmd>lua vim.lsp.buf.references()<CR>', { noremap = true, silent = true })
+  -- Function to jump to the next quickfix entry and open it without losing focus
+  function qf_jump(delta)
+    -- Determine the command to run based on delta
+    local cmd = delta > 0 and 'cnext' or 'cprev'
+
+    local qf_list = vim.fn.getqflist()
+    local qf_idx = vim.fn.getqflist({ idx = 0 }).idx
+
+    if qf_idx == #qf_list and delta > 0 then
+      return
+    end
+
+    if qf_idx == 1 and delta < 0 then
+      return
+    end
+    -- Save the current window and buffer
+    local current_win = vim.api.nvim_get_current_win()
+
+    -- Move to the next/previous quickfix entry
+    vim.cmd(cmd)
+
+    -- Get the new quickfix entry
+    -- local qf_list = vim.fn.getqflist()
+    --local qf_idx = vim.fn.getqflist({ idx = 0 }).idx
+    -- local entry = qf_list[qf_idx]
+
+    -- Open the file at the quickfix entry
+    -- vim.cmd('keepjumps edit ' .. entry.filename)
+    -- vim.api.nvim_win_set_cursor(0, { entry.lnum, entry.col - 1 })
+
+    -- Reopen the quickfix window and move the cursor back to it
+    -- vim.cmd('copen')
+    vim.api.nvim_set_current_win(current_win)
+  end
+
+  -- Function to set quickfix key mappings using autocmd
+  local function set_quickfix_keymaps()
+    vim.cmd [[
+        augroup QuickfixKeymaps
+            autocmd!
+            autocmd FileType qf nnoremap <buffer> j :lua qf_jump(1)<CR>
+            autocmd FileType qf nnoremap <buffer> k :lua qf_jump(-1)<CR>
+            autocmd FileType qf nnoremap <buffer> <CR> <CR>:cclose<CR>
+        augroup END
+    ]]
+  end
+
+  -- Call the keymap setup
+  set_quickfix_keymaps()
+
+  -- nmap('<leader>gr', vim.lsp.buf.references(), '[G]oto [R]eferences')
+
   nmap('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
-  nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+  -- replaced with above
+  -- nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
   nmap('gI', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
   nmap('<leader>D', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
   nmap('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
