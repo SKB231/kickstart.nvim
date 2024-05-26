@@ -85,7 +85,6 @@ require('lazy').setup({
 
   -- GLSL syntax highlighting
   'tikhomirov/vim-glsl',
-
   -- NOTE: This is where your plugins related to LSP can be installed.
   --  The configuration is done below. Search for lspconfig to find it below.
   {
@@ -390,7 +389,6 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   pattern = '*',
 })
 
-
 -- [[ Configure Telescope ]]
 -- See `:help telescope` and `:help telescope.setup()`
 local telescope_actions = require('telescope.actions')
@@ -642,12 +640,18 @@ local on_attach = function(_, bufnr)
 
   -- nmap('<leader>gr', vim.lsp.buf.references(), '[G]oto [R]eferences')
 
+  -- Open buffers to quickly switch to open files in different parts of the codebase
+  nmap('<leader>gb', require('telescope.builtin').buffers, '[G]oto open [B]uffers')
+
   nmap('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
   -- replaced with above
   -- nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
   nmap('gI', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
   nmap('<leader>D', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
   nmap('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
+  nmap('<leader>df', function()
+    require('telescope.builtin').lsp_document_symbols({ symbols = { "function" } })
+  end, '[D]ocument [S]ymbols')
   nmap('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
 
   -- See `:help K` for why this keymap
